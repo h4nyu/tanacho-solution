@@ -1,7 +1,8 @@
 version: '2.4'
 
 x-env: &env
-  TENSORBOARD_PORT: ${TENSORBOARD_PORT:?}
+  TENSORBOARD_PORT: &TENSORBOARD_PORT ${TENSORBOARD_PORT:?}
+  NVIDIA_VISIBLE_DEVICES:  &NVIDIA_VISIBLE_DEVICES ${NVIDIA_VISIBLE_DEVICES}
 
 
 x-app: &app
@@ -17,7 +18,7 @@ services:
   app:
     <<: *app
     environment:
-      NVIDIA_VISIBLE_DEVICES:
+      NVIDIA_VISIBLE_DEVICES: *NVIDIA_VISIBLE_DEVICES
 
   tensorboard:
     <<: *app

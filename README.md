@@ -45,7 +45,7 @@ python cli.py extend
 1. Train model
 
 ```sh
-docker-compose rm -rm app python cli.py train -c configs/repro.yaml
+python cli.py train -c configs/v2-1.yaml
 ```
 
 1. Evaluate model
