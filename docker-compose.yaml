@@ -2,16 +2,16 @@ version: '2.4'
 
 x-env: &env
   TENSORBOARD_PORT: &TENSORBOARD_PORT ${TENSORBOARD_PORT:?}
-  NVIDIA_VISIBLE_DEVICES:  &NVIDIA_VISIBLE_DEVICES ${NVIDIA_VISIBLE_DEVICES}
+  NVIDIA_VISIBLE_DEVICES:  &NVIDIA_VISIBLE_DEVICES ${NVIDIA_VISIBLE_DEVICES:-all}
 
 
 x-app: &app
   shm_size: '30gb'
+  runtime: nvidia
   build:
     context: .
   volumes:
     - .:/app
-
 
 
 services:
