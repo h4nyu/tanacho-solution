@@ -55,3 +55,5 @@ docker-compose rm -rm app python cli.py evaluate -c configs/v2-1.yaml
 ```
 
 1. Register trained model to `ensemble.yaml`
+  a. add config path to `config_paths`. 
+  b. copy trained model from checkpoints to model
