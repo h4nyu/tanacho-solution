@@ -60,3 +60,4 @@ docker-compose rm -rm app python cli.py evaluate -c configs/v2-1.yaml
   
     b. copy trained model from checkpoints to model
 
+
