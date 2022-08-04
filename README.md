@@ -14,13 +14,13 @@
 TENSORBOARD_PORT=6006
 ```
 
-1. Build environment image
+2. Build environment image
 
 ```sh
 docker-compose build app
 ```
 
-1. Setup dataset
+3. Setup dataset
 ```
 datasets/
 ├── evaluation
@@ -30,30 +30,33 @@ datasets/
 └── train_meta.json
 ```
 
-1. Enter the app container
+4. Enter the app container
 
 ```sh
 docker-compose rm -rm app bash
 ```
 
-1. Create extra samples
+5. Create extra samples
 
 ```sh
 python cli.py extend
 ```
 
-1. Train model
+6. Train model
 
 ```sh
 python cli.py train -c configs/v2-1.yaml
 ```
 
-1. Evaluate model
+9. Evaluate model
 
 ```sh
 docker-compose rm -rm app python cli.py evaluate -c configs/v2-1.yaml
 ```
 
-1. Register trained model to `ensemble.yaml`
-  a. add config path to `config_paths`. 
-  b. copy trained model from checkpoints to model
+8. Register trained model to `ensemble.yaml`
+
+    a. add config path to `config_paths`.
+  
+    b. copy trained model from checkpoints to model
+
