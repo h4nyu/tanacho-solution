@@ -54,4 +54,10 @@ python cli.py train -c configs/v2-1.yaml
 docker-compose rm -rm app python cli.py evaluate -c configs/v2-1.yaml
 ```
 
+1. Fine train
+
+```sh
+docker-compose rm -rm app python cli.py evaluate -c configs/v2-1.fine.yaml
+```
+
 1. Register trained model to `ensemble.yaml`

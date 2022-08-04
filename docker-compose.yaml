@@ -22,6 +22,6 @@ services:
 
   tensorboard:
     <<: *app
-    command: tensorboard --logdir=. --host=0.0.0.0 --port=${TENSORBOARD_PORT}
+    command: tensorboard --logdir=lightning_logs --host=0.0.0.0 --port=${TENSORBOARD_PORT}
     ports:
       - "${TENSORBOARD_PORT}:${TENSORBOARD_PORT}"

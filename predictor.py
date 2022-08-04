@@ -28,7 +28,7 @@ from sklearn import preprocessing
 from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 from timm.scheduler import CosineLRScheduler
-from toolz.curried import compose, curry, filter, groupby, map, partition, pipe, sorted
+from toolz.curried import compose, curry, filter, groupby, map, partition_all, pipe, sorted
 from torch import Tensor, nn, optim
 from torch.cuda.amp import GradScaler, autocast
 from torch.utils.data import DataLoader, Dataset
@@ -42,6 +42,7 @@ stream_handler.setLevel(logging.INFO)
 stream_handler.setFormatter(Formatter("%(message)s"))
 file_handler = FileHandler(f"app.log")
 logging.basicConfig(level=logging.NOTSET, handlers=[stream_handler, file_handler])
+
 
 
 @dataclass
@@ -149,12 +150,12 @@ class BalancedBatchSampler(BatchSampler):
         self.rows = dataset.rows
         self.batch_size = batch_size
         self.categorys = categories
+        self.drop_last = True
 
     def __len__(self) -> int:
-        return len(self.dataset) // self.batch_size
+        return len(self.rows) // self.batch_size
 
     def __iter__(self) -> Iterator:
-        self.batch_idx = 0
         groups = toolz.groupby(lambda x: x[1]["category"], enumerate(self.rows))
         batches = []
         # print('-----------')
@@ -163,7 +164,7 @@ class BalancedBatchSampler(BatchSampler):
             rows = pipe(
                 group,
                 sorted(key=lambda x: x[1]["color"]),
-                partition(self.batch_size),
+                partition_all(self.batch_size),
                 list,
             )
             batches.extend(rows)
@@ -516,6 +517,7 @@ class LitModelNoNet(pl.LightningModule):
 
 def train(cfg: Config, fold: dict) -> LitModelNoNet:
     pp.pprint(cfg)
+    pl.seed_everything(cfg.seed, workers=True)
     train_rows = fold["train"]
     for sample in cfg.hard_samples:
         for row in fold["valid"]:
@@ -530,19 +532,21 @@ def train(cfg: Config, fold: dict) -> LitModelNoNet:
         rows=fold["valid"],
         transform=InferenceTransform(cfg),
     )
-    batch_sampler = BalancedBatchSampler(train_dataset, batch_size=cfg.batch_size)
     train_loader = torch.utils.data.DataLoader(
         train_dataset,
-        num_workers=cfg.num_workers,
-        batch_sampler=batch_sampler,
+        # batch_size=cfg.batch_size,
+        # num_workers=cfg.num_workers,
+        batch_sampler=BalancedBatchSampler(train_dataset, batch_size=cfg.batch_size),
     )
 
     valid_loader = torch.utils.data.DataLoader(
         valid_dataset,
         batch_size=cfg.batch_size,
-        shuffle=False,
         num_workers=cfg.num_workers,
+        # batch_sampler=BalancedBatchSampler(valid_dataset, ),
     )
+    print(len(train_dataset))
+    print(len(valid_dataset))
     trainer = pl.Trainer(
         deterministic=True,
         precision=16,
@@ -555,8 +559,8 @@ def train(cfg: Config, fold: dict) -> LitModelNoNet:
                 monitor=cfg.monitor_target, mode=cfg.monitor_mode, patience=cfg.patience
             ),
             pl.callbacks.ModelCheckpoint(
-                monitor="val_loss",
-                mode="min",
+                monitor=cfg.monitor_target,
+                mode=cfg.monitor_mode,
                 dirpath=cfg.checkpoint_dir,
                 filename=cfg.checkpoint_filename,
                 save_last=False,
