@@ -163,7 +163,6 @@ class BalancedBatchSampler(BatchSampler):
             random.shuffle(group)
             rows = pipe(
                 group,
-                sorted(key=lambda x: x[1]["color"]),
                 partition_all(self.batch_size),
                 list,
             )
@@ -757,6 +756,7 @@ class Registry:
 
     def create_index(self) -> None:
         trainer = pl.Trainer(
+            logger=False,
             deterministic=True,
             gpus=1,
             max_epochs=-1,
