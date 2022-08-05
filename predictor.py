@@ -534,8 +534,7 @@ def train(cfg: Config, fold: dict) -> LitModelNoNet:
     )
     train_loader = torch.utils.data.DataLoader(
         train_dataset,
-        # batch_size=cfg.batch_size,
-        # num_workers=cfg.num_workers,
+        num_workers=cfg.num_workers,
         batch_sampler=BalancedBatchSampler(train_dataset, batch_size=cfg.batch_size),
     )
 
